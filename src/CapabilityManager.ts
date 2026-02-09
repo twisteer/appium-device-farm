@@ -45,10 +45,17 @@ async function findAppPath(caps: any) {
       where: { uploadedFileName: fileName as string },
     });
     return `${DevicePlugin.serverUrl}${appInfo?.path}`;
+  } else if (fileName && /^[A-Za-z]+[A-Za-z0-9_\-\.]+\.(zip|apk|aab|ipa|app)$/.test(fileName)) {
+    const appInfo: any = await prisma.appInformation.findFirst({
+      where: { fileName: fileName as string },
+      orderBy: { createdAt: 'desc' },
+    });
+    return appInfo ? `${DevicePlugin.serverUrl}${appInfo?.path}` : fileName;
   } else {
     return fileName;
   }
 }
+
 export async function androidCapabilities(
   caps: ISessionCapability,
   freeDevice: IDevice,
